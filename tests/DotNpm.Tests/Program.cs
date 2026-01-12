@@ -12,6 +12,8 @@ namespace DotNpm.Tests {
 
             // Add services to the container.
             builder.Services.AddRazorComponents().AddInteractiveServerComponents();
+            builder.Services.AddDotNpm("tailwind", builder => {
+            });
 
             var app = builder.Build();
 

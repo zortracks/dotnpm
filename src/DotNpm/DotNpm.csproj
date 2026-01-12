@@ -4,7 +4,12 @@
 		<TargetFramework>net10.0</TargetFramework>
 		<Description>A dotnet library that's able to run embedded npm environments during runtime.</Description>
 		<Authors>zortracks</Authors>
-		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="CliWrap" Version="3.10.0" />
+	  <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.1" />
+	  <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.1" />
+	</ItemGroup>
 
 </Project>
