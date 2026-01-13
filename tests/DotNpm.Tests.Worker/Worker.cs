@@ -7,17 +7,11 @@ namespace DotNpm.Tests.Worker {
 
     public sealed class Worker : BackgroundService {
         private readonly NodeEnvironment _builtIn;
-        private readonly NodeEnvironment _local;
 
-        public Worker([FromKeyedServices("local")] NodeEnvironment local, [FromKeyedServices("built-in")] NodeEnvironment builtIn) {
-            _local = local;
+        public Worker([FromKeyedServices("built-in")] NodeEnvironment builtIn) {
             _builtIn = builtIn;
         }
 
-        protected override Task ExecuteAsync(CancellationToken stoppingToken) {
-            Task.WaitAll(_local.RunAsync(stoppingToken), _builtIn.RunAsync(stoppingToken));
-
-            return Task.CompletedTask;
-        }
+        protected override Task ExecuteAsync(CancellationToken stoppingToken) => _builtIn.RunAsync(stoppingToken);
     }
 }

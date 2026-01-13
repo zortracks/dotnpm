@@ -45,12 +45,23 @@ namespace DotNpm {
             var jsonSerializerOptions = new JsonSerializerOptions();
 
             jsonSerializerOptions.Converters.Add(new LocalPackage.LocalPackageConverter(_serviceProvider));
+            jsonSerializerOptions.Converters.Add(new Dependency.DependencyConverter());
+            jsonSerializerOptions.Converters.Add(new LocalScript.LocalScriptConverter(_serviceProvider));
 
             return WithPackage(JsonSerializer.Deserialize<LocalPackage>(File.ReadAllText(Path.Combine(Environment.Directory.FullName, fileName)), jsonSerializerOptions));
         }
 
         public NodeEnvironmentBuilder WithPackage(IPackage package) {
             Environment.Package = package;
+
+            return this;
+        }
+
+        public NodeEnvironmentBuilder WithSources(Action<SourcesBuilder> builder) {
+            var sourceBuilder = new SourcesBuilder(_serviceProvider, Environment.Directory);
+
+            builder.Invoke(sourceBuilder);
+            Environment.Source = sourceBuilder.Sources;
 
             return this;
         }

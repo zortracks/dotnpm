@@ -16,7 +16,7 @@ namespace DotNpm {
         public DirectoryInfo Directory { get; internal set; }
         public string Name { get; internal set; }
         public IPackage Package { get; internal set; }
-
+        public Sources Source { get; internal set; }
         internal IServiceProvider ServiceProvider { get; set; }
 
         public async Task RunAsync(CancellationToken cancellationToken = default) {

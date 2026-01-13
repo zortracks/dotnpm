@@ -8,12 +8,23 @@ namespace DotNpm.Tests.Worker {
         public static void Main(string[] args) {
             var builder = Host.CreateApplicationBuilder(args);
 
-            builder.Services.AddDotNpm("local", builder => {
-                builder.WithLocalPackage();
-            });
             builder.Services.AddDotNpm("built-in", builder => {
+                var inputCssFile = null as BuiltInCssSourceFile;
+
+                builder.WithSources(builder => {
+                    builder.AddCssFile("input.css", builder => {
+                        builder.WithImport("tailwindcss");
+                    }, out inputCssFile);
+                });
+
                 builder.WithBuiltInPackage("built-in", builder => {
-                    builder.WithVersion("1.0.0");
+                    builder.WithDevDependency("tailwindcss", builder => builder.WithLatestVersion());
+                    builder.WithDevDependency("@tailwindcss/postcss", builder => builder.WithLatestVersion());
+                    builder.WithDevDependency("postcss", builder => builder.WithLatestVersion());
+
+                    builder.WithScript("dev", builder => {
+                        builder.Inline("npx tailwindcss -i ./src/input.css -o ./dist/output.css --watch");
+                    });
                 });
             });
             builder.Services.AddHostedService<Worker>();

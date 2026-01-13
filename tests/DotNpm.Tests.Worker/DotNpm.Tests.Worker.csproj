@@ -12,6 +12,7 @@
 
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\src\DotNpm.Sources.Css\DotNpm.Sources.Css.csproj" />
 		<ProjectReference Include="..\..\src\DotNpm\DotNpm.csproj" />
 	</ItemGroup>
 

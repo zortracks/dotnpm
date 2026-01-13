@@ -12,8 +12,10 @@ using System.Threading.Tasks;
 namespace DotNpm {
 
     public interface IPackage {
-        IDictionary<string, string> DevDependencies { get; }
+        IEnumerable<Dependency> Dependencies { get; }
+        IEnumerable<Dependency> DevDependencies { get; }
         string Name { get; }
+        IEnumerable<ScriptBase> Scripts { get; }
         string Version { get; }
 
         Task PrepareAsync(DirectoryInfo baseDirectory, CancellationToken cancellationToken);
@@ -24,8 +26,10 @@ namespace DotNpm {
         public BuiltInPackage(ILogger<BuiltInPackage> logger, NodeInvocationService nodeInvocationService) : base(logger, nodeInvocationService) {
         }
 
-        public IDictionary<string, string> DevDependencies { get; } = new Dictionary<string, string>();
+        public IEnumerable<Dependency> Dependencies { get; } = new HashSet<Dependency>();
+        public IEnumerable<Dependency> DevDependencies { get; } = new HashSet<Dependency>();
         public string Name { get; internal set; }
+        public IEnumerable<ScriptBase> Scripts { get; } = new HashSet<ScriptBase>();
         public string Version { get; internal set; }
 
         public Task PrepareAsync(DirectoryInfo baseDirectory, CancellationToken cancellationToken) {
@@ -48,9 +52,14 @@ namespace DotNpm {
             if (!baseDirectory.Exists)
                 baseDirectory.Create();
 
-            return File.WriteAllTextAsync(Path.Combine(baseDirectory.FullName, "package.json"), JsonSerializer.Serialize(this, new JsonSerializerOptions() {
+            var options = new JsonSerializerOptions() {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            }));
+            };
+
+            options.Converters.Add(new Dependency.DependencyConverter());
+            options.Converters.Add(new BuiltInScript.BuiltInScriptConverter());
+
+            return File.WriteAllTextAsync(Path.Combine(baseDirectory.FullName, "package.json"), JsonSerializer.Serialize(this, options));
         }
     }
 
@@ -80,8 +89,10 @@ namespace DotNpm {
         public LocalPackage(ILogger<LocalPackage> logger, NodeInvocationService nodeInvocationService) : base(logger, nodeInvocationService) {
         }
 
-        public IDictionary<string, string> DevDependencies { get; set; }
+        public IEnumerable<Dependency> Dependencies { get; set; }
+        public IEnumerable<Dependency> DevDependencies { get; set; }
         public string Name { get; set; }
+        public IEnumerable<ScriptBase> Scripts { get; set; }
         public string Version { get; set; }
 
         public Task PrepareAsync(DirectoryInfo baseDirectory, CancellationToken cancellationToken) {
