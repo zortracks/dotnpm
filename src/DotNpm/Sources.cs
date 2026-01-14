@@ -3,6 +3,6 @@
 namespace DotNpm {
 
     public sealed class Sources {
-        public HashSet<SourceFileBase> Files { get; } = new HashSet<SourceFileBase>();
+        public IEnumerable<SourceFileBase> Files { get; internal set; }
     }
 }

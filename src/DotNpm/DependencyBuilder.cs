@@ -1,15 +1,22 @@
-﻿namespace DotNpm {
+﻿using System;
+
+namespace DotNpm {
 
     public sealed class DependencyBuilder {
+        private readonly string _dependencyName;
 
         public DependencyBuilder(string dependencyName) {
-            Dependency = new Dependency(dependencyName);
+            this._dependencyName = dependencyName;
         }
 
-        public Dependency Dependency { get; private set; }
+        public Func<IServiceProvider, string> Version { get; private set; }
 
-        public void WithLatestVersion() => Dependency.Version = "latest";
+        public Dependency GetDependency(IServiceProvider serviceProvider) => new Dependency(_dependencyName) {
+            Version = Version.Invoke(serviceProvider)
+        };
 
-        public void WithVersion(string version) => Dependency.Version = version;
+        public void WithLatestVersion() => WithVersion("latest");
+
+        public void WithVersion(string version) => Version = _ => version;
     }
 }

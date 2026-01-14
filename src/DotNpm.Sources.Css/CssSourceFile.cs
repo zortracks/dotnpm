@@ -6,7 +6,7 @@ namespace DotNpm {
     }
 
     public abstract class CssSourceFileBase : SourceFileBase {
-        public HashSet<string> Imports { get; } = new HashSet<string>();
+        public IEnumerable<string> Imports { get; internal set; }
     }
 
     public sealed class LocalCssSourceFile : CssSourceFileBase {

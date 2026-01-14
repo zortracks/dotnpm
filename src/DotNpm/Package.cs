@@ -26,10 +26,11 @@ namespace DotNpm {
         public BuiltInPackage(ILogger<BuiltInPackage> logger, NodeInvocationService nodeInvocationService) : base(logger, nodeInvocationService) {
         }
 
-        public IEnumerable<Dependency> Dependencies { get; } = new HashSet<Dependency>();
-        public IEnumerable<Dependency> DevDependencies { get; } = new HashSet<Dependency>();
+        public IEnumerable<Dependency> Dependencies { get; internal set; }
+        public IEnumerable<Dependency> DevDependencies { get; internal set; }
+        public Dist Dist { get; internal set; }
         public string Name { get; internal set; }
-        public IEnumerable<ScriptBase> Scripts { get; } = new HashSet<ScriptBase>();
+        public IEnumerable<ScriptBase> Scripts { get; internal set; }
         public string Version { get; internal set; }
 
         public Task PrepareAsync(DirectoryInfo baseDirectory, CancellationToken cancellationToken) {

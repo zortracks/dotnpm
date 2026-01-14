@@ -6,15 +6,14 @@ namespace DotNpm {
 
     public static class ServiceCollectionExtensions {
 
-        public static IServiceCollection AddDotNpm(this IServiceCollection services, string name, Action<NodeEnvironmentBuilder> builder) {
+        public static IServiceCollection AddDotNpm(this IServiceCollection services, string environmentName, Action<NodeEnvironmentBuilder> builder) {
+            var nodeEnvironmentBuilder = new NodeEnvironmentBuilder(services, environmentName);
+
+            builder.Invoke(nodeEnvironmentBuilder);
+
             services.AddDotNpmCore();
-            services.TryAddKeyedSingleton(name, (serviceProvider, _) => {
-                var nodeEnvironmentBuilder = new NodeEnvironmentBuilder(serviceProvider, name);
-
-                builder.Invoke(nodeEnvironmentBuilder);
-
-                return nodeEnvironmentBuilder.Environment;
-            });
+            services.TryAddKeyedSingleton(environmentName, (serviceProvider, _) => nodeEnvironmentBuilder.GetEnvironment(serviceProvider));
+            services.TryAddKeyedSingleton(environmentName, (serviceProvider, _) => ActivatorUtilities.CreateInstance<NodeAssetsService>(serviceProvider, environmentName));
 
             return services;
         }

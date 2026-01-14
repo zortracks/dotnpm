@@ -1,31 +1,28 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace DotNpm {
 
     public sealed class SourcesBuilder {
-        private readonly DirectoryInfo _baseDirectory;
-        private IServiceProvider _serviceProvider;
+        public readonly DirectoryInfo _baseDirectory;
+        public readonly IServiceCollection _services;
 
-        public SourcesBuilder(IServiceProvider serviceProvider, DirectoryInfo baseDirectory) {
-            _serviceProvider = serviceProvider;
+        public SourcesBuilder(IServiceCollection services, DirectoryInfo baseDirectory) {
+            _services = services;
             _baseDirectory = baseDirectory;
-
-            Sources = ActivatorUtilities.CreateInstance<Sources>(_serviceProvider);
         }
 
-        public Sources Sources { get; }
+        public HashSet<Func<IServiceProvider, SourceFileBase>> Files { get; } = new HashSet<Func<IServiceProvider, SourceFileBase>>();
 
-        public SourcesBuilder AddFile<TSourceFileBuilder, TSourceFile>(string fileName, Action<TSourceFileBuilder> builder, out TSourceFile file)
-            where TSourceFile : SourceFileBase
-            where TSourceFileBuilder : SourceFileBuilder<TSourceFile> {
-            var sourceFileBuilder = ActivatorUtilities.CreateInstance<TSourceFileBuilder>(_serviceProvider, _baseDirectory, fileName);
+        public Sources GetSources(IServiceProvider serviceProvider) {
+            var sources = ActivatorUtilities.CreateInstance<Sources>(serviceProvider);
 
-            builder.Invoke(sourceFileBuilder);
-            Sources.Files.Add(file = sourceFileBuilder.SourceFile);
+            sources.Files = Files.Select(file => file.Invoke(serviceProvider));
 
-            return this;
+            return sources;
         }
     }
 }
