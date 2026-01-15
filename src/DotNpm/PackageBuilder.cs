@@ -1,17 +1,20 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace DotNpm {
 
     public sealed class PackageBuilder {
+        private readonly DirectoryInfo _baseDirectory;
         private readonly string _packageName;
         private readonly IServiceCollection _services;
 
-        public PackageBuilder(IServiceCollection services, string packageName) {
+        public PackageBuilder(IServiceCollection services, DirectoryInfo baseDirectory, string packageName) {
             _services = services;
             _packageName = packageName;
+            _baseDirectory = baseDirectory;
         }
 
         public HashSet<Func<IServiceProvider, Dependency>> DependenciesFactory { get; } = new HashSet<Func<IServiceProvider, Dependency>>();
@@ -23,11 +26,11 @@ namespace DotNpm {
         public BuiltInPackage GetPackage(IServiceProvider serviceProvider) {
             var builtInPackage = ActivatorUtilities.CreateInstance<BuiltInPackage>(serviceProvider);
 
-            builtInPackage.Dependencies = DependenciesFactory.Select(dependencyFactory => dependencyFactory.Invoke(serviceProvider));
-            builtInPackage.DevDependencies = DevDependenciesFactory.Select(dependencyFactory => dependencyFactory.Invoke(serviceProvider));
+            builtInPackage.Dependencies = DependenciesFactory.Select(dependencyFactory => dependencyFactory.Invoke(serviceProvider)).ToHashSet();
+            builtInPackage.DevDependencies = DevDependenciesFactory.Select(dependencyFactory => dependencyFactory.Invoke(serviceProvider)).ToHashSet();
             builtInPackage.Dist = DistFactory?.Invoke(serviceProvider);
             builtInPackage.Name = _packageName;
-            builtInPackage.Scripts = ScriptsFactory.Select(scriptFactory => scriptFactory.Invoke(serviceProvider));
+            builtInPackage.Scripts = ScriptsFactory.Select(scriptFactory => scriptFactory.Invoke(serviceProvider)).ToHashSet<ScriptBase>();
             builtInPackage.Version = VersionFactory?.Invoke();
 
             return builtInPackage;
@@ -38,7 +41,7 @@ namespace DotNpm {
         public PackageBuilder WithDevDependency(string dependencyName, Action<DependencyBuilder> builder) => WithDependency(DevDependenciesFactory, dependencyName, builder);
 
         public PackageBuilder WithDist(Action<DistBuilder> builder) {
-            var distBuilder = new DistBuilder(_services);
+            var distBuilder = new DistBuilder(_services, _baseDirectory);
 
             builder.Invoke(distBuilder);
             DistFactory = serviceProvider => distBuilder.GetDist(serviceProvider);
@@ -46,8 +49,8 @@ namespace DotNpm {
             return this;
         }
 
-        public PackageBuilder WithScript(string scriptName, Action<ScriptBuilder> builder, out IScriptInvocationReference scriptInvocationReference) {
-            var scriptBuilder = new ScriptBuilder(_services, scriptName);
+        public PackageBuilder WithScript(string scriptName, Action<ScriptBuilder> builder, out ScriptInvocationReference scriptInvocationReference) {
+            var scriptBuilder = new ScriptBuilder(_services, _baseDirectory, scriptName);
 
             builder.Invoke(scriptBuilder);
             ScriptsFactory.Add(serviceProvider => scriptBuilder.GetScript(serviceProvider));

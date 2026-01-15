@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace DotNpm {
 
@@ -10,8 +12,14 @@ namespace DotNpm {
             _environment = serviceProvider.GetKeyedService<NodeEnvironment>(environmentName);
         }
 
-        public string GetAssetReference(string assetName) {
-            throw new NotImplementedException();
+        public async Task<string> GetAssetReferenceAsync(string assetName) {
+            var asset = GetAsset(assetName);
+
+            await asset.EnsureReadyAsync();
+
+            return string.Empty;
         }
+
+        private INodeAsset GetAsset(string assetName) => _environment.Assets[Path.GetRelativePath("./", assetName)];
     }
 }

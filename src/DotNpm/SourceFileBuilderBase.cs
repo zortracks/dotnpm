@@ -17,6 +17,6 @@ namespace DotNpm {
 
         public abstract TSourceFile GetSourceFile(IServiceProvider serviceProvider);
 
-        public abstract ISourceFileReference<TSourceFile> GetSourceFileReference();
+        public abstract SourceFileReference<TSourceFile> GetSourceFileReference();
     }
 }

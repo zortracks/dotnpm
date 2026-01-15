@@ -21,8 +21,8 @@ namespace DotNpm {
             return builtInCssSourceFile;
         }
 
-        public override ISourceFileReference<BuiltInCssSourceFile> GetSourceFileReference() {
-            return null;
+        public override SourceFileReference<BuiltInCssSourceFile> GetSourceFileReference() {
+            return new SourceFileReference<BuiltInCssSourceFile>(new FileInfo(Path.Combine(_baseDirectory.FullName, _fileName)));
         }
 
         public CssSourceFileBuilder WithImport(string import) {

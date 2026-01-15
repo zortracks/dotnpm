@@ -12,7 +12,7 @@ namespace DotNpm {
 
         public SourcesBuilder(IServiceCollection services, DirectoryInfo baseDirectory) {
             _services = services;
-            _baseDirectory = baseDirectory;
+            _baseDirectory = new DirectoryInfo(Path.Combine(baseDirectory.FullName, "src"));
         }
 
         public HashSet<Func<IServiceProvider, SourceFileBase>> Files { get; } = new HashSet<Func<IServiceProvider, SourceFileBase>>();
@@ -20,7 +20,7 @@ namespace DotNpm {
         public Sources GetSources(IServiceProvider serviceProvider) {
             var sources = ActivatorUtilities.CreateInstance<Sources>(serviceProvider);
 
-            sources.Files = Files.Select(file => file.Invoke(serviceProvider));
+            sources.Files = Files.Select(file => file.Invoke(serviceProvider)).ToHashSet();
 
             return sources;
         }

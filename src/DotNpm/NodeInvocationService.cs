@@ -29,6 +29,10 @@ namespace DotNpm {
 
             public Task InstallAsync() => Invoke(command => command.WithArguments("install"));
 
+            public Task RunAsync(string scriptName) {
+                throw new NotImplementedException();
+            }
+
             private Task Invoke(Func<Command, Command> command) {
                 return command.Invoke(Cli.Wrap("npm"))
                     .WithWorkingDirectory(_directory.FullName)

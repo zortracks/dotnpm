@@ -9,7 +9,7 @@ namespace DotNpm {
 
         public abstract OutputFileBase GetOutputFile(IServiceProvider serviceProvider);
 
-        public abstract IOutputFileReference<TOutputFile> GetOutputFileReference();
+        public abstract OutputFileReference<TOutputFile> GetOutputFileReference();
 
         public T WithFileWatching(bool watch = true) {
             Watch = watch;

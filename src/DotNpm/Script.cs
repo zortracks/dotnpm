@@ -1,8 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 
 namespace DotNpm {
 
@@ -36,10 +39,14 @@ namespace DotNpm {
         }
 
         internal sealed class LocalScriptConverter : JsonConverter<IEnumerable<ScriptBase>> {
+            private readonly DirectoryInfo _directory;
             private readonly IServiceProvider _serviceProvider;
+            private readonly IEnumerable<string> _watchParameters;
 
-            public LocalScriptConverter(IServiceProvider serviceProvider) {
+            public LocalScriptConverter(IServiceProvider serviceProvider, DirectoryInfo directory, IEnumerable<string> watchParameters) {
                 _serviceProvider = serviceProvider;
+                _directory = directory;
+                _watchParameters = watchParameters;
             }
 
             public override IEnumerable<ScriptBase> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
@@ -50,6 +57,8 @@ namespace DotNpm {
                     var localScript = ActivatorUtilities.CreateInstance<LocalScript>(_serviceProvider, field.Name);
 
                     localScript.Command = field.Value.GetString();
+                    localScript.Directory = _directory;
+                    localScript.Watch = _watchParameters.Any(localScript.Command.Contains);
 
                     result.Add(localScript);
                 }
@@ -78,6 +87,12 @@ namespace DotNpm {
         }
 
         public string Command { get; internal set; }
+        public DirectoryInfo Directory { get; internal set; }
         public string Name { get; }
+        public bool Watch { get; internal set; }
+
+        public async Task InvokeAsync() {
+            _serviceProvider.GetRequiredService<NodeInvocationService>().CreateContext(Directory).RunAsync(Name);
+        }
     }
 }

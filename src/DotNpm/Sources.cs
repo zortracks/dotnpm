@@ -3,6 +3,6 @@
 namespace DotNpm {
 
     public sealed class Sources {
-        public IEnumerable<SourceFileBase> Files { get; internal set; }
+        public IReadOnlySet<SourceFileBase> Files { get; internal set; }
     }
 }

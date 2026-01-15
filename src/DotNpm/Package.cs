@@ -12,10 +12,10 @@ using System.Threading.Tasks;
 namespace DotNpm {
 
     public interface IPackage {
-        IEnumerable<Dependency> Dependencies { get; }
-        IEnumerable<Dependency> DevDependencies { get; }
+        IReadOnlySet<Dependency> Dependencies { get; }
+        IReadOnlySet<Dependency> DevDependencies { get; }
         string Name { get; }
-        IEnumerable<ScriptBase> Scripts { get; }
+        IReadOnlySet<ScriptBase> Scripts { get; }
         string Version { get; }
 
         Task PrepareAsync(DirectoryInfo baseDirectory, CancellationToken cancellationToken);
@@ -26,11 +26,11 @@ namespace DotNpm {
         public BuiltInPackage(ILogger<BuiltInPackage> logger, NodeInvocationService nodeInvocationService) : base(logger, nodeInvocationService) {
         }
 
-        public IEnumerable<Dependency> Dependencies { get; internal set; }
-        public IEnumerable<Dependency> DevDependencies { get; internal set; }
+        public IReadOnlySet<Dependency> Dependencies { get; internal set; }
+        public IReadOnlySet<Dependency> DevDependencies { get; internal set; }
         public Dist Dist { get; internal set; }
         public string Name { get; internal set; }
-        public IEnumerable<ScriptBase> Scripts { get; internal set; }
+        public IReadOnlySet<ScriptBase> Scripts { get; internal set; }
         public string Version { get; internal set; }
 
         public Task PrepareAsync(DirectoryInfo baseDirectory, CancellationToken cancellationToken) {
@@ -90,10 +90,10 @@ namespace DotNpm {
         public LocalPackage(ILogger<LocalPackage> logger, NodeInvocationService nodeInvocationService) : base(logger, nodeInvocationService) {
         }
 
-        public IEnumerable<Dependency> Dependencies { get; set; }
-        public IEnumerable<Dependency> DevDependencies { get; set; }
+        public IReadOnlySet<Dependency> Dependencies { get; set; }
+        public IReadOnlySet<Dependency> DevDependencies { get; set; }
         public string Name { get; set; }
-        public IEnumerable<ScriptBase> Scripts { get; set; }
+        public IReadOnlySet<ScriptBase> Scripts { get; set; }
         public string Version { get; set; }
 
         public Task PrepareAsync(DirectoryInfo baseDirectory, CancellationToken cancellationToken) {

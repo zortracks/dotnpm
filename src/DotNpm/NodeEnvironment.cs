@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ namespace DotNpm {
             _logger = logger;
         }
 
+        public IReadOnlyDictionary<string, INodeAsset> Assets { get; internal set; }
         public DirectoryInfo Directory { get; internal set; }
         public string Name { get; internal set; }
         public IPackage Package { get; internal set; }
