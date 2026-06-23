@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+﻿using DotNpm.Builders;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 
 namespace DotNpm {
@@ -7,13 +7,9 @@ namespace DotNpm {
     public static class ServiceCollectionExtensions {
 
         public static IServiceCollection AddDotNpm(this IServiceCollection services, string environmentName, Action<NodeEnvironmentBuilder> builder) {
-            var nodeEnvironmentBuilder = new NodeEnvironmentBuilder(services, environmentName);
-
-            builder.Invoke(nodeEnvironmentBuilder);
+            builder.Invoke(new NodeEnvironmentBuilder(services, environmentName));
 
             services.AddDotNpmCore();
-            services.TryAddKeyedSingleton(environmentName, (serviceProvider, _) => nodeEnvironmentBuilder.GetEnvironment(serviceProvider));
-            services.TryAddKeyedSingleton(environmentName, (serviceProvider, _) => ActivatorUtilities.CreateInstance<NodeAssetsService>(serviceProvider, environmentName));
 
             return services;
         }

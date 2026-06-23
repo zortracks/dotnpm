@@ -17,13 +17,17 @@ namespace DotNpm.Tests.Worker {
                     }, out inputCssFile);
                 });
 
-                builder.WithBuiltInPackage("built-in", builder => {
+                builder.WithAssetFile("./dist/output.css", builder => {
+
+                });
+
+                builder.WithPackage(builder => {
                     builder.WithDevDependency("tailwindcss", builder => builder.WithLatestVersion());
                     builder.WithDevDependency("@tailwindcss/postcss", builder => builder.WithLatestVersion());
                     builder.WithDevDependency("postcss", builder => builder.WithLatestVersion());
 
                     builder.WithScript("dev", builder => {
-                        builder.Inline("npx tailwindcss -i ./src/input.css -o ./dist/output.css --watch");
+                        //builder.Inline("npx tailwindcss -i ./src/input.css -o ./dist/output.css --watch");
                     });
                 });
             });
